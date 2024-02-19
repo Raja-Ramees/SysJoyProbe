@@ -1,174 +1,146 @@
+
 #!/bin/bash
 
-# Function to display section headers
-function display_header {
-    echo "###############################"
-    echo "### $1"
-    echo "###############################"
-    echo
+# Advanced System Monitoring Script with Logging
+
+# Log file
+log_file="system_monitoring_log_$(date +"%Y%m%d_%H%M%S").txt"
+
+# Function to log messages
+log_message() {
+    local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+    echo "[${timestamp}] $1" >> "$log_file"
 }
 
-# Function to display block device information
-function block_device_info {
-    display_header "💽 Block device information:"
-    lsblk
-    echo
+# Function to get CPU usage percentage
+get_cpu_usage() {
+    log_message "Fetching CPU usage."
+    cpu_percentage=$(top -bn1 | grep "Cpu(s)" | awk '{print $2}' | awk -F. '{print $1}')
+    echo "CPU Usage: ${cpu_percentage}%"
 }
 
-# Function to display memory information
-function memory_info {
-    display_header "📊 Memory information:"
-    free -m
-    echo
+# Function to get memory usage
+get_memory_usage() {
+    log_message "Fetching memory usage."
+    memory_usage=$(free -m | awk '/Mem:/ {printf "%dMB used, %dMB free\n", $3, $4}')
+    echo "Memory Usage: ${memory_usage}"
 }
 
-# Function to display disk space usage
-function disk_space_usage {
-    display_header "💾 Checking disk space:"
-    df -h
-    echo
+# Function to get disk space usage
+get_disk_usage() {
+    log_message "Fetching disk space usage."
+    disk_usage=$(df -h | awk '$NF=="/" {printf "Disk Usage: %s used, %s free\n", $3, $4}')
+    echo "${disk_usage}"
 }
 
-# Function to display disk usage
-function disk_usage {
-    display_header "📁 Checking disk usage:"
-    du -h
-    echo
-}
-
-# Function to display network information
-function network_info {
-    display_header "🌐 Checking network information:"
-    ip a
-    echo
-}
-
-# Function to display real-time system information
-function real_time_info {
-    display_header "⏳ Checking real-time system information:"
-    for ((i=1; i<=5; i++)); do
-        # Replace this with the real-time system information command
-        echo "Iteration $i: Real-time information"
-        sleep 1
-    done
-    echo
-}
-
-# Function to display list of running processes
-function running_processes {
-    display_header "🔄 List of all running processes:"
-    ps aux
-    echo
-}
-
-# Function to display information about logged-in users
-function logged_in_users {
-    display_header "👥 Checking logged-in users:"
-    w
-    echo
-    display_header "🔍 Shell information of logged-in users:"
-    # Check the shell of each user
-    for user in $(who | awk '{print $1}'); do
-        user_shell=$(getent passwd $user | cut -d: -f7)
-        echo "User: $user | Shell: $user_shell"
-    done
-    echo
-}
-
-# Function to check and start SSH service if not running
-function check_and_start_ssh {
-    if ! systemctl is-active --quiet sshd; then
-        echo "🚀 Starting SSH service..."
-        sudo systemctl start sshd
-        SSH_PID=$(pgrep -o sshd)
-        echo "SSH process started with PID: $SSH_PID"
+# Function to get network statistics
+get_network_statistics() {
+    log_message "Fetching network statistics."
+    ifstat_installed=$(command -v ifstat)
+    if [ -n "$ifstat_installed" ]; then
+        network_stats=$(ifstat 1 1 | tail -n 1 | awk '{printf "Network: Rx %s, Tx %s\n", $3, $5}')
+        echo "${network_stats}"
     else
-        echo "✅ SSH service is already running."
-        SSH_PID=$(pgrep -o sshd)
-        echo "SSH process is running with PID: $SSH_PID"
+        log_message "Error: 'ifstat' is not installed. Unable to fetch network statistics."
+        echo "Error: 'ifstat' is not installed. Please install it to display network statistics."
     fi
-    echo
 }
 
-# Function to check and start HTTPd service if not running
-function check_and_start_httpd {
-    if ! systemctl is-active --quiet httpd; then
-        echo "🚀 Starting HTTPd service..."
-        sudo systemctl start httpd
-        HTTPD_PID=$(pgrep -o httpd)
-        echo "HTTPd process started with PID: $HTTPD_PID"
-    else
-        echo "✅ HTTPd service is already running."
-        HTTPD_PID=$(pgrep -o httpd)
-        echo "HTTPd process is running with PID: $HTTPD_PID"
-    fi
-    echo
+# Function to display running processes
+get_running_processes() {
+    log_message "Fetching running processes."
+    processes=$(ps aux --sort=-%cpu | head -n 10)
+    echo "Top 10 CPU-Intensive Processes:"
+    echo "${processes}"
 }
 
-# Function to kill SSH and HTTPd processes
-function kill_processes {
-    if [ -n "$SSH_PID" ] || [ -n "$HTTPD_PID" ]; then
-        echo "🔪 Killing SSH and HTTPd processes..."
-        if [ -n "$SSH_PID" ]; then
-            echo "Killing SSH process with PID: $SSH_PID"
-            sudo kill $SSH_PID
-            echo "✅ SSH process killed."
-        fi
-        if [ -n "$HTTPD_PID" ]; then
-            echo "Killing HTTPd process with PID: $HTTPD_PID"
-            sudo kill $HTTPD_PID
-            echo "✅ HTTPd process killed."
-        fi
-        echo "⏰ Sleeping for 5 seconds..."
-        sleep 5
-        echo
-        read -p "Press 1 to start services again: " user_input
-        if [ "$user_input" = "1" ]; then
-            check_and_start_ssh
-            check_and_start_httpd
+# Function to monitor specific processes
+monitor_processes() {
+    log_message "Monitoring specific processes."
+    read -p "Enter the process names (comma-separated): " process_names
+    for process_name in $(echo "$process_names" | tr ',' ' '); do
+        process_info=$(pgrep -fl "$process_name")
+        if [ -n "$process_info" ]; then
+            echo "Process '$process_name' is running: $process_info"
+            log_message "Process '$process_name' is running: $process_info"
         else
-            echo "Services not restarted."
+            echo "Process '$process_name' is not running."
+            log_message "Process '$process_name' is not running."
         fi
-    else
-        echo "No processes to kill."
-    fi
-    echo
+    done
 }
 
-# Main script
-block_device_info
-memory_info
-disk_space_usage
-disk_usage
-network_info
-real_time_info
-running_processes
-logged_in_users
+# Function to generate a detailed system report
+generate_detailed_system_report() {
+    log_message "Generating detailed system report."
+    report_file="detailed_system_report_$(date +"%Y%m%d_%H%M%S").txt"
+    {
+        echo "=== Detailed System Report - $(date) ==="
+        get_cpu_usage
+        get_memory_usage
+        get_disk_usage
+        get_system_uptime
+        get_network_statistics
+        get_running_processes
+        echo "==============================="
+        monitor_processes
+        echo "==============================="
+    } > "${report_file}"
+    if [ $? -eq 0 ]; then
+        echo "Report file generated successfully: ${report_file}"
+        log_message "Report file generated successfully: ${report_file}"
+    else
+        echo "Error: Unable to generate the report file."
+        log_message "Error: Unable to generate the report file."
+    fi
+}
 
-# Check and start SSH and HTTPd services
-check_and_start_ssh
-check_and_start_httpd
+# Function to display system uptime
+get_system_uptime() {
+    log_message "Fetching system uptime."
+    uptime=$(uptime -p)
+    echo "System Uptime: ${uptime}"
+}
 
-# Display status of SSH and HTTPd services
-echo "🔍 Status of SSH service:"
-sudo systemctl status sshd --no-pager
-echo
+# Function to display a menu
+display_menu() {
+    echo "==================== Advanced System Monitoring Menu ===================="
+    echo "1. Display CPU Usage"
+    echo "2. Display Memory Usage"
+    echo "3. Display Disk Space Usage"
+    echo "4. Display Network Statistics"
+    echo "5. Display Running Processes"
+    echo "6. Monitor Specific Processes"
+    echo "7. Generate Detailed System Report"
+    echo "8. Exit"
+    echo "========================================================================"
+}
 
-echo "🔍 Status of HTTPd service:"
-sudo systemctl status httpd --no-pager
-echo
+# Main execution
+while true; do
+    display_menu
+    read -p "Enter your choice (1-8): " choice
 
-# Kill SSH and HTTPd processes and optionally start again
-kill_processes
-
-# Display status of SSH and HTTPd services after restarting
-echo "🔍 Status of SSH service after restart:"
-sudo systemctl status sshd --no-pager
-echo
-
-echo "🔍 Status of HTTPd service after restart:"
-sudo systemctl status httpd --no-pager
-echo
-
-# End of script
+    if [[ "$choice" =~ ^[1-8]$ ]]; then
+        case $choice in
+            1) get_cpu_usage ;;
+            2) get_memory_usage ;;
+            3) get_disk_usage ;;
+            4) get_network_statistics ;;
+            5) get_running_processes ;;
+            6) monitor_processes ;;
+            7) generate_detailed_system_report ;;
+            8)
+                echo "Exiting. Goodbye!"
+                log_message "Exiting the script."
+                exit
+                ;;
+        esac
+        read -p "Press Enter to continue..."
+        clear
+    else
+        echo "Error: Invalid choice. Please enter a number between 1 and 8."
+        log_message "Error: Invalid menu choice entered."
+    fi
+done
 
