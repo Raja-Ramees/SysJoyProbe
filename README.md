@@ -1,81 +1,84 @@
-# SysJoyProbe
+# Advanced System Monitoring Script
 
-**SysJoyProbe:** A Bash script for joyous system exploration! Uncover CPU, memory, disk, and network details with delightful emojis. Experience system information like never before! 🚀
+## Overview
 
-## Quick Start
+Welcome to the Advanced System Monitoring Script! This Bash script is crafted to serve as a versatile and user-friendly tool for comprehensive system monitoring on Linux-based systems. It empowers users with the ability to effortlessly check critical system metrics, monitor processes, and generate detailed reports. The script is designed to be intuitive, making it an invaluable asset for both seasoned system administrators and those new to Linux environments.
 
-1. **Clone the repository:**
+## Features
+
+### 1. Monitor System Metrics
+
+- **CPU Usage:** Keep an eye on your system's CPU usage, allowing for timely intervention and resource optimization.
+
+- **Memory Usage:** Gain insights into memory consumption, ensuring efficient allocation and preventing bottlenecks.
+
+- **Disk Space:** Monitor disk space usage to prevent potential storage issues.
+
+- **Network Statistics:** Track network activity with detailed statistics, providing valuable insights for performance analysis.
+
+### 2. Process Monitoring
+
+- **Running Processes:** Quickly identify and assess the top CPU-intensive processes running on your system.
+
+- **Monitor Specific Processes:** Tailor your monitoring to specific processes, enhancing your ability to manage critical applications.
+
+### 3. Reporting
+
+- **Generate Detailed Reports:** Create comprehensive system reports, consolidating vital information such as CPU usage, memory statistics, disk usage, network activity, and running processes.
+
+### 4. Logging
+
+- **Activity Logging:** The script maintains a detailed log file, documenting its activities and providing transparency into executed operations.
+
+## Usage
+
+### Prerequisites
+
+Ensure your system meets the following requirements:
+
+- Linux operating system
+- Bash shell
+
+### Getting Started
+
+1. **Make the script executable:**
+
     ```bash
-    git clone https://github.com/Raja-Ramees/sysjoyprobe.git
+    chmod +x system_monitoring.sh
     ```
 
-2. **Navigate to the project directory:**
+2. **Run the script:**
+
     ```bash
-    cd sysjoyprobe
-    chmod u+x sysjoyprobe.sh
+    ./system_monitoring.sh
     ```
 
-3. **Run the script:**
-    ```bash
-    ./sysjoyprobe.sh
-    ```
+3. **Follow the on-screen menu:**
 
-## Setting Permissions
+    - Choose from a variety of monitoring options.
+    - Monitor system metrics, processes, and generate detailed reports effortlessly.
 
-### SysJoyProbe Script
+## Logging
 
-Ensure that the `sysjoyprobe.sh` script has the necessary permissions to execute. Run the following commands:
+The script logs its activities in a file named `system_monitoring_log_<timestamp>.txt`, providing a historical record of executed commands and aiding in troubleshooting.
 
-```bash
-# Navigate to the project directory
-cd sysjoyprobe
+## Notes for Recruiters
 
-# Set execute permissions for the script
-chmod u+x sysjoyprobe.sh
+- This script showcases proficiency in Bash scripting and system administration.
+  
+- The user-friendly menu system makes it accessible for users of varying technical backgrounds.
 
-# Verify the permissions
-ls -l sysjoyprobe.sh
-The output should show something like:
--rwxr-xr-x 1 user user 1675 Feb  2 00:26 sysjoyprobe.sh
+- The logging feature demonstrates attention to detail and transparency in script execution.
 
-# Set appropriate permissions for README.md
-chmod 644 README.md
+- The script is a testament to the ability to automate routine tasks, a crucial skill in systems administration.
 
-# Verify the permissions
-ls -l README.md
-The output should show something like:
--rw-r--r-- 1 user user 1091 Feb  2 00:26 README.md
+## License
 
-Features
-🖥️ Comprehensive information about your CPU.
-💽 Detailed block device insights.
-📊 Memory usage statistics.
-💾 Disk space and usage analysis.
-🌐 Network information at your fingertips.
-⏳ Real-time system monitoring for instant updates.
-Screenshots
-SysJoyProbe in Action
+This script is released under the [MIT License](LICENSE). Feel free to customize and adapt it to your specific needs.
 
-Installation
-Add any installation instructions or dependencies here.
+Feel the power of efficient system monitoring with the Advanced System Monitoring Script!
 
-Usage Examples
-Provide examples of common use cases or commands.
+For any inquiries or collaboration opportunities, please don't hesitate to reach out.
 
-FAQ
-Anticipate potential questions and provide answers in a Frequently Asked Questions (FAQ) section.
-
-Contributions
-Contributions are welcome! If you'd like to contribute to SysJoyProbe, please follow our Contributing Guidelines.
-
-Acknowledgments
-Give credit to any external libraries, tools, or individuals who contributed to your project.
-
-License
-This project is licensed under the MIT License. Feel free to use, modify, and share it!
-
-Support or Contact
-For help or issues, please reach out to +919541557749.
-
-Feel free to customize this template further based on your specific needs!
+Happy monitoring!
 
